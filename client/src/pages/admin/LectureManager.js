@@ -45,7 +45,7 @@ const LectureManager = () => {
 
   const loadLectures = async () => {
     try {
-      const res = await lectureAPI.getByCourse(selectedCourse);
+      const res = await lectureAPI.getAllByCourse(selectedCourse);
       setLectures(res.data.data || []);
     } catch (error) {
       console.error('Error loading lectures:', error);

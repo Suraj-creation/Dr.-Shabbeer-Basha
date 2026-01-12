@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
-  FaHome, FaBook, FaGraduationCap, FaTasks, FaUsers, 
+  FaHome, FaBook, FaGraduationCap, FaTasks, 
   FaBookReader, FaClipboardList, FaFileAlt, FaBoxOpen, 
   FaSignOutAlt 
 } from 'react-icons/fa';
@@ -15,7 +15,7 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/admin/login');
+    navigate('/');
   };
 
   const menuItems = [
@@ -23,7 +23,6 @@ const AdminLayout = () => {
     { path: '/admin/courses', icon: <FaBook />, label: 'Courses' },
     { path: '/admin/lectures', icon: <FaGraduationCap />, label: 'Lectures' },
     { path: '/admin/assignments', icon: <FaTasks />, label: 'Assignments' },
-    { path: '/admin/teaching-assistants', icon: <FaUsers />, label: 'Teaching Assistants' },
     { path: '/admin/tutorials', icon: <FaBookReader />, label: 'Tutorials' },
     { path: '/admin/prerequisites', icon: <FaClipboardList />, label: 'Prerequisites' },
     { path: '/admin/exams', icon: <FaFileAlt />, label: 'Exams' },

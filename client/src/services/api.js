@@ -42,6 +42,7 @@ export const courseAPI = {
 // Lecture API
 export const lectureAPI = {
   getByCourse: (courseId) => api.get(`/lectures/course/${courseId}`),
+  getAllByCourse: (courseId) => api.get(`/lectures/admin/course/${courseId}`),
   getById: (id) => api.get(`/lectures/${id}`),
   create: (data) => api.post('/lectures', data),
   update: (id, data) => api.put(`/lectures/${id}`, data),
@@ -51,24 +52,17 @@ export const lectureAPI = {
 // Assignment API
 export const assignmentAPI = {
   getByCourse: (courseId) => api.get(`/assignments/course/${courseId}`),
+  getAllByCourse: (courseId) => api.get(`/assignments/admin/course/${courseId}`),
   getById: (id) => api.get(`/assignments/${id}`),
   create: (data) => api.post('/assignments', data),
   update: (id, data) => api.put(`/assignments/${id}`, data),
   delete: (id) => api.delete(`/assignments/${id}`)
 };
 
-// Teaching Assistant API
-export const taAPI = {
-  getByCourse: (courseId) => api.get(`/teaching-assistants/course/${courseId}`),
-  getById: (id) => api.get(`/teaching-assistants/${id}`),
-  create: (data) => api.post('/teaching-assistants', data),
-  update: (id, data) => api.put(`/teaching-assistants/${id}`, data),
-  delete: (id) => api.delete(`/teaching-assistants/${id}`)
-};
-
 // Tutorial API
 export const tutorialAPI = {
   getByCourse: (courseId) => api.get(`/tutorials/course/${courseId}`),
+  getAllByCourse: (courseId) => api.get(`/tutorials/admin/course/${courseId}`),
   getById: (id) => api.get(`/tutorials/${id}`),
   create: (data) => api.post('/tutorials', data),
   update: (id, data) => api.put(`/tutorials/${id}`, data),
@@ -86,6 +80,7 @@ export const prerequisiteAPI = {
 // Exam API
 export const examAPI = {
   getByCourse: (courseId) => api.get(`/exams/course/${courseId}`),
+  getAllByCourse: (courseId) => api.get(`/exams/admin/course/${courseId}`),
   getById: (id) => api.get(`/exams/${id}`),
   create: (data) => api.post('/exams', data),
   update: (id, data) => api.put(`/exams/${id}`, data),

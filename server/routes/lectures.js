@@ -3,12 +3,25 @@ const router = express.Router();
 const Lecture = require('../models/Lecture');
 const auth = require('../middleware/auth');
 
-// Get all lectures for a course
+// Get all lectures for a course (public - only published)
 router.get('/course/:courseId', async (req, res) => {
   try {
     const lectures = await Lecture.find({ 
       courseId: req.params.courseId,
       isPublished: true 
+    }).sort({ lectureNumber: 1 });
+    
+    res.json({ success: true, count: lectures.length, data: lectures });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get all lectures for a course (admin - all including drafts)
+router.get('/admin/course/:courseId', auth, async (req, res) => {
+  try {
+    const lectures = await Lecture.find({ 
+      courseId: req.params.courseId
     }).sort({ lectureNumber: 1 });
     
     res.json({ success: true, count: lectures.length, data: lectures });

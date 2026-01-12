@@ -36,7 +36,7 @@ const ExamManager = () => {
   const loadExams = async () => {
     if (!selectedCourse) return;
     try {
-      const response = await examAPI.getByCourse(selectedCourse);
+      const response = await examAPI.getAllByCourse(selectedCourse);
       setExams(response.data.data || []);
     } catch (error) { console.error('Error:', error); }
   };
@@ -92,10 +92,11 @@ const ExamManager = () => {
     try {
       const dataToSubmit = {
         ...formData,
-        course: selectedCourse,
+        courseId: selectedCourse,
         syllabus: formData.syllabus.filter(s => s.trim()),
         guidelines: formData.guidelines.filter(g => g.trim()),
-        preparationResources: formData.preparationResources.filter(r => r.title.trim())
+        preparationResources: formData.preparationResources.filter(r => r.title.trim()),
+        isPublished: true
       };
       if (editingId) {
         await examAPI.update(editingId, dataToSubmit);

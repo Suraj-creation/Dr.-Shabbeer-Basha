@@ -54,7 +54,7 @@ const PrerequisiteManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const dataToSubmit = { ...formData, course: selectedCourse, resources: formData.resources.filter(r => r.title.trim()) };
+      const dataToSubmit = { ...formData, courseId: selectedCourse, resources: formData.resources.filter(r => r.title.trim()) };
       if (editingId) {
         await prerequisiteAPI.update(editingId, dataToSubmit);
         alert('Prerequisite updated successfully!');

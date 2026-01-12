@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './AdminLogin.css';
 
@@ -68,6 +68,7 @@ const AdminLogin = () => {
 
         <div className="login-footer">
           <p>Default: admin@dlcourse.com / admin123</p>
+          <Link to="/" className="back-home-link">← Back to Home Page</Link>
         </div>
       </div>
     </div>

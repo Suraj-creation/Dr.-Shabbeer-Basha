@@ -20,7 +20,7 @@ const AssignmentManager = () => {
 
   const loadCourses = async () => { try { const response = await courseAPI.getAll(); setCourses(response.data.data || []); } catch (error) { console.error('Error:', error); } };
   const loadLectures = async () => { if (!selectedCourse) return; try { const response = await lectureAPI.getByCourse(selectedCourse); setLectures(response.data.data || []); } catch (error) { console.error('Error:', error); } };
-  const loadAssignments = async () => { if (!selectedCourse) return; try { const response = await assignmentAPI.getByCourse(selectedCourse); setAssignments(response.data.data || []); } catch (error) { console.error('Error:', error); } };
+  const loadAssignments = async () => { if (!selectedCourse) return; try { const response = await assignmentAPI.getAllByCourse(selectedCourse); setAssignments(response.data.data || []); } catch (error) { console.error('Error:', error); } };
 
   const handleInputChange = (e) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: value })); };
   const handleArrayChange = (field, index, value) => { setFormData(prev => ({ ...prev, [field]: prev[field].map((item, i) => i === index ? value : item) })); };
@@ -38,10 +38,11 @@ const AssignmentManager = () => {
     try {
       const dataToSubmit = {
         ...formData,
-        course: selectedCourse,
+        courseId: selectedCourse,
         learningObjectives: formData.learningObjectives.filter(obj => obj.trim()),
         requirements: formData.requirements.filter(req => req.trim()),
-        rubric: formData.rubric.filter(r => r.criteria.trim())
+        rubric: formData.rubric.filter(r => r.criteria.trim()),
+        isPublished: true
       };
       if (editingId) { await assignmentAPI.update(editingId, dataToSubmit); alert('Assignment updated!'); }
       else { await assignmentAPI.create(dataToSubmit); alert('Assignment created!'); }

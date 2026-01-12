@@ -31,7 +31,6 @@ const HomePage = () => {
             <Link to="/tutorials">Tutorials</Link>
             <Link to="/exams">Exams</Link>
             <Link to="/prerequisites">Prerequisites</Link>
-            <Link to="/teaching-team">Teaching Team</Link>
             <Link to="/resources">Resources</Link>
             <a href="/admin/login" className="admin-link">Admin Login</a>
           </nav>

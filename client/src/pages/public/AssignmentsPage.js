@@ -49,7 +49,6 @@ const AssignmentsPage = () => {
           <Link to="/tutorials">Tutorials</Link>
           <Link to="/exams">Exams</Link>
           <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/teaching-team">Teaching Team</Link>
           <Link to="/resources">Resources</Link>
           <Link to="/admin/login" className="admin-link">Admin</Link>
         </nav>

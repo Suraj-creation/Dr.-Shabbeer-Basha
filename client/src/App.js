@@ -6,7 +6,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import HomePage from './pages/public/HomePage';
 import CurriculumPage from './pages/public/CurriculumPage';
 import AssignmentsPage from './pages/public/AssignmentsPage';
-import TeachingTeamPage from './pages/public/TeachingTeamPage';
 import ResourcesPage from './pages/public/ResourcesPage';
 import TutorialsPage from './pages/public/TutorialsPage';
 import ExamsPage from './pages/public/ExamsPage';
@@ -19,7 +18,6 @@ import AdminLayout from './components/AdminLayout';
 import CourseManager from './pages/admin/CourseManager';
 import LectureManager from './pages/admin/LectureManager';
 import AssignmentManager from './pages/admin/AssignmentManager';
-import TAManager from './pages/admin/TAManager';
 import TutorialManager from './pages/admin/TutorialManager';
 import PrerequisiteManager from './pages/admin/PrerequisiteManager';
 import ExamManager from './pages/admin/ExamManager';
@@ -54,7 +52,6 @@ function App() {
           <Route path="/tutorials" element={<TutorialsPage />} />
           <Route path="/exams" element={<ExamsPage />} />
           <Route path="/prerequisites" element={<PrerequisitesPage />} />
-          <Route path="/teaching-team" element={<TeachingTeamPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
 
           {/* Admin Login */}
@@ -73,7 +70,6 @@ function App() {
             <Route path="courses" element={<CourseManager />} />
             <Route path="lectures" element={<LectureManager />} />
             <Route path="assignments" element={<AssignmentManager />} />
-            <Route path="teaching-assistants" element={<TAManager />} />
             <Route path="tutorials" element={<TutorialManager />} />
             <Route path="prerequisites" element={<PrerequisiteManager />} />
             <Route path="exams" element={<ExamManager />} />

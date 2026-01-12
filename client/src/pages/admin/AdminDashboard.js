@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { courseAPI, lectureAPI, assignmentAPI, taAPI } from '../../services/api';
+import { courseAPI, lectureAPI, assignmentAPI, tutorialAPI, examAPI, resourceAPI, prerequisiteAPI } from '../../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -7,8 +7,11 @@ const AdminDashboard = () => {
     courses: 0,
     lectures: 0,
     assignments: 0,
-    tas: 0
+    tutorials: 0,
+    exams: 0,
+    resources: 0
   });
+  const [recentItems, setRecentItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,16 +20,52 @@ const AdminDashboard = () => {
 
   const loadStats = async () => {
     try {
-      const [coursesRes] = await Promise.all([
-        courseAPI.getAll()
-      ]);
+      const coursesRes = await courseAPI.getAll();
+      const courses = coursesRes.data.data || [];
+      
+      let totalLectures = 0;
+      let totalAssignments = 0;
+      let totalTutorials = 0;
+      let totalExams = 0;
+      let totalResources = 0;
+      let allLectures = [];
+      
+      // Load stats for all courses
+      for (const course of courses) {
+        try {
+          const [lecturesRes, assignmentsRes, tutorialsRes, examsRes, resourcesRes] = await Promise.all([
+            lectureAPI.getByCourse(course._id),
+            assignmentAPI.getByCourse(course._id),
+            tutorialAPI.getByCourse(course._id),
+            examAPI.getByCourse(course._id),
+            resourceAPI.getByCourse(course._id)
+          ]);
+          
+          totalLectures += lecturesRes.data.count || lecturesRes.data.data?.length || 0;
+          totalAssignments += assignmentsRes.data.count || assignmentsRes.data.data?.length || 0;
+          totalTutorials += tutorialsRes.data.count || tutorialsRes.data.data?.length || 0;
+          totalExams += examsRes.data.count || examsRes.data.data?.length || 0;
+          totalResources += resourcesRes.data.count || resourcesRes.data.data?.length || 0;
+          
+          if (lecturesRes.data.data) {
+            allLectures = [...allLectures, ...lecturesRes.data.data];
+          }
+        } catch (err) {
+          console.error('Error loading stats for course:', course._id, err);
+        }
+      }
       
       setStats({
-        courses: coursesRes.data.count || 0,
-        lectures: 0, // Load from first course
-        assignments: 0,
-        tas: 0
+        courses: courses.length,
+        lectures: totalLectures,
+        assignments: totalAssignments,
+        tutorials: totalTutorials,
+        exams: totalExams,
+        resources: totalResources
       });
+      
+      // Set recent lectures
+      setRecentItems(allLectures.slice(0, 5));
     } catch (error) {
       console.error('Error loading stats:', error);
     } finally {
@@ -69,10 +108,26 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">👥</div>
+          <div className="stat-icon">�</div>
           <div className="stat-content">
-            <h3>{stats.tas}</h3>
-            <p>Teaching Assistants</p>
+            <h3>{stats.tutorials}</h3>
+            <p>Tutorials</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">📋</div>
+          <div className="stat-content">
+            <h3>{stats.exams}</h3>
+            <p>Exams</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">📦</div>
+          <div className="stat-content">
+            <h3>{stats.resources}</h3>
+            <p>Resources</p>
           </div>
         </div>
       </div>
@@ -89,11 +144,27 @@ const AdminDashboard = () => {
           <button className="action-btn" onClick={() => window.location.href = '/admin/assignments'}>
             📝 Create Assignment
           </button>
-          <button className="action-btn" onClick={() => window.location.href = '/admin/teaching-assistants'}>
-            👤 Add Teaching Assistant
+          <button className="action-btn" onClick={() => window.location.href = '/admin/tutorials'}>
+            📚 Add Tutorial
           </button>
         </div>
       </div>
+
+      {recentItems.length > 0 && (
+        <div className="recent-activity">
+          <h2>Recent Lectures</h2>
+          <ul>
+            {recentItems.map((item, index) => (
+              <li key={item._id || index}>
+                <strong>Lecture {item.lectureNumber}:</strong> {item.title}
+                <span className={`status-badge ${item.isPublished ? 'published' : 'draft'}`}>
+                  {item.isPublished ? '✅ Published' : '📝 Draft'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="recent-activity">
         <h2>Getting Started</h2>
@@ -101,7 +172,7 @@ const AdminDashboard = () => {
           <li>✅ Create your first course in the Courses section</li>
           <li>✅ Add lectures with slides and video links</li>
           <li>✅ Create assignments with due dates</li>
-          <li>✅ Add teaching assistants and their contact information</li>
+          <li>✅ Add tutorials and practice problems</li>
           <li>✅ Organize resources for students</li>
         </ul>
       </div>

@@ -49,7 +49,7 @@ const ResourceManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const dataToSubmit = { ...formData, course: selectedCourse, tags: formData.tags.filter(t => t.trim()) };
+      const dataToSubmit = { ...formData, courseId: selectedCourse, tags: formData.tags.filter(t => t.trim()) };
       if (editingId) {
         await resourceAPI.update(editingId, dataToSubmit);
         alert('Resource updated successfully!');

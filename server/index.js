@@ -22,18 +22,46 @@ app.use(morgan('dev'));
 // Static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => {
-  console.log('✅ MongoDB connected successfully');
-  console.log('📊 Database:', mongoose.connection.name);
-})
-.catch(err => {
-  console.error('❌ MongoDB connection error:', err.message);
-  console.error('💡 Check if:');
-  console.error('   1. Your IP is whitelisted in MongoDB Atlas');
-  console.error('   2. The cluster is running (not paused)');
-  console.error('   3. Connection string is correct in .env file');
+// Database connection with better timeout settings
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+      socketTimeoutMS: 45000,
+    });
+    console.log('✅ MongoDB connected successfully');
+    console.log('📊 Database:', mongoose.connection.name);
+    console.log('🌐 Connection host:', mongoose.connection.host);
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('💡 SOLUTION: You need to whitelist your IP address in MongoDB Atlas');
+    console.error('');
+    console.error('📋 Steps to fix:');
+    console.error('   1. Go to https://cloud.mongodb.com/');
+    console.error('   2. Select your project > Network Access');
+    console.error('   3. Click "Add IP Address"');
+    console.error('   4. Click "Allow Access from Anywhere" (0.0.0.0/0)');
+    console.error('   5. Click "Confirm"');
+    console.error('   6. Wait 2 minutes and restart your server');
+    console.error('');
+    console.error('⚠️  Server will continue running but database operations will fail');
+  }
+};
+
+// Connect to database
+connectDB();
+
+// Handle connection events
+mongoose.connection.on('connected', () => {
+  console.log('🔄 Mongoose connected to MongoDB');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('🔴 Mongoose connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️  Mongoose disconnected from MongoDB');
 });
 
 // Import routes

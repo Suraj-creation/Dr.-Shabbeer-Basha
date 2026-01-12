@@ -47,7 +47,6 @@ const ResourcesPage = () => {
           <Link to="/tutorials">Tutorials</Link>
           <Link to="/exams">Exams</Link>
           <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/teaching-team">Teaching Team</Link>
           <Link to="/resources">Resources</Link>
           <Link to="/admin/login" className="admin-link">Admin</Link>
         </nav>
@@ -95,11 +94,13 @@ const ResourcesPage = () => {
                           ))}
                         </div>
                       )}
-                      <div style={{marginTop: '15px'}}>
-                        <a href={resource.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{display: 'inline-block', padding: '10px 20px', background: '#667eea', color: 'white', textDecoration: 'none', borderRadius: '4px'}}>
-                          View Resource 
-                        </a>
-                      </div>
+                      {resource.url && (
+                        <div style={{marginTop: '15px'}}>
+                          <a href={resource.url} target="_blank" rel="noopener noreferrer" style={{display: 'inline-block', padding: '10px 20px', background: '#667eea', color: 'white', textDecoration: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer', transition: 'background 0.3s'}}>
+                            🔗 View Resource
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
