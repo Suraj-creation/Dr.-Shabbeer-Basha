@@ -53,11 +53,5 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "server/index.js": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
   }
 }
