@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { courseAPI, examAPI } from '../../services/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import './PublicPages.css';
 
 function ExamsPage() {
@@ -39,62 +41,76 @@ function ExamsPage() {
       'Quiz': 'badge-success',
       'Final': 'badge-danger'
     };
-    return colors[type] || 'badge-secondary';
+    return colors[type] || 'badge-info';
   };
 
   return (
     <div className="public-page">
-      <header className="site-header">
-        <h1>📝 Examinations</h1>
-        <nav className="main-nav">
-          <Link to="/">Home</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/assignments">Assignments</Link>
-          <Link to="/tutorials">Tutorials</Link>
-          <Link to="/exams">Exams</Link>
-          <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/resources">Resources</Link>
-          <Link to="/admin/login" className="admin-link">Admin</Link>
-        </nav>
-      </header>
+      <Header userRole="student" />
+      
       <main className="main-container">
-        {loading ? (<p>Loading...</p>) : (
+        <div className="page-title-section">
+          <h1>📋 Examinations</h1>
+          <p>View exam schedules, locations, and guidelines</p>
+        </div>
+
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <span className="loading-text">Loading exams...</span>
+          </div>
+        ) : (
           <>
-            <div className="course-selector" style={{marginBottom: '20px'}}>
-              <label style={{marginRight: '10px'}}>Select Course: </label>
-              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} style={{padding: '8px', fontSize: '16px'}}>
-                {courses.map(course => (<option key={course._id} value={course._id}>{course.courseCode} - {course.courseTitle}</option>))}
+            <div className="course-selector-container">
+              <label>Select Course:</label>
+              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+                {courses.map(course => (
+                  <option key={course._id} value={course._id}>
+                    {course.courseCode} - {course.courseTitle}
+                  </option>
+                ))}
               </select>
             </div>
+
             <section className="exams-section">
-              {exams.length === 0 ? (<p className="empty-message">No exams scheduled for this course.</p>) : (
-                <div className="courses-grid">
+              {exams.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">📝</div>
+                  <h3>No Exams Scheduled</h3>
+                  <p>Exam information will appear here when available.</p>
+                </div>
+              ) : (
+                <div className="exams-list">
                   {exams.map(exam => (
-                    <div key={exam._id} className="course-card">
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div key={exam._id} className="content-card">
+                      <div className="content-card-header">
                         <h3>{exam.title}</h3>
                         <span className={`badge ${getExamTypeBadge(exam.examType)}`}>{exam.examType}</span>
                       </div>
                       
-                      <div style={{marginTop: '15px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                      <div className="info-grid">
                         {exam.date && (
-                          <div>
-                            <strong>📅 Date:</strong> {new Date(exam.date).toLocaleDateString()}
+                          <div className="info-item">
+                            <label><FaCalendarAlt /> Date</label>
+                            <span>{new Date(exam.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                           </div>
                         )}
                         {exam.time && (
-                          <div>
-                            <strong>🕐 Time:</strong> {exam.time.start} - {exam.time.end}
+                          <div className="info-item">
+                            <label><FaClock /> Time</label>
+                            <span>{exam.time.start} - {exam.time.end}</span>
                           </div>
                         )}
                         {exam.location && (
-                          <div>
-                            <strong>📍 Location:</strong> {exam.location}
+                          <div className="info-item">
+                            <label><FaMapMarkerAlt /> Location</label>
+                            <span>{exam.location}</span>
                           </div>
                         )}
                         {exam.duration && (
-                          <div>
-                            <strong>⏱️ Duration:</strong> {exam.duration}
+                          <div className="info-item">
+                            <label>Duration</label>
+                            <span>{exam.duration}</span>
                           </div>
                         )}
                         {exam.totalMarks && (
@@ -147,7 +163,7 @@ function ExamsPage() {
           </>
         )}
       </main>
-      <footer className="site-footer"><p>&copy; 2026 Educational Platform. All rights reserved.</p></footer>
+      <Footer />
     </div>
   );
 }

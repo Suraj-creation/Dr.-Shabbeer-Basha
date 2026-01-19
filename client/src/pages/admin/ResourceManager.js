@@ -14,7 +14,10 @@ const ResourceManager = () => {
   });
 
   useEffect(() => { loadCourses(); }, []);
-  useEffect(() => { if (selectedCourse) loadResources(); }, [selectedCourse]);
+  useEffect(() => {
+    if (selectedCourse) loadResources();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCourse]);
 
   const loadCourses = async () => {
     try {

@@ -29,6 +29,7 @@ const LectureManager = () => {
     if (selectedCourse) {
       loadLectures();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCourse]);
 
   const loadCourses = async () => {

@@ -9,12 +9,15 @@ const TAManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    course: '', firstName: '', lastName: '', email: '', lab: '', officeHours: '',
+    courseId: '', firstName: '', lastName: '', email: '', lab: '', officeHours: '',
     availableDays: [], responsibilities: [''], photoUrl: '', contactPreference: 'Email', isActive: true, order: 0
   });
 
   useEffect(() => { loadCourses(); }, []);
-  useEffect(() => { if (selectedCourse) loadTAs(); }, [selectedCourse]);
+  useEffect(() => {
+    if (selectedCourse) loadTAs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCourse]);
 
   const loadCourses = async () => {
     try {
@@ -63,7 +66,7 @@ const TAManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const dataToSubmit = { ...formData, course: selectedCourse, responsibilities: formData.responsibilities.filter(r => r.trim()) };
+      const dataToSubmit = { ...formData, courseId: selectedCourse, responsibilities: formData.responsibilities.filter(r => r.trim()) };
       if (editingId) {
         await taAPI.update(editingId, dataToSubmit);
         alert('TA updated successfully!');
@@ -78,7 +81,7 @@ const TAManager = () => {
 
   const handleEdit = (ta) => {
     setFormData({
-      course: ta.course?._id || ta.course || '', firstName: ta.firstName || '', lastName: ta.lastName || '',
+      courseId: ta.courseId?._id || ta.courseId || '', firstName: ta.firstName || '', lastName: ta.lastName || '',
       email: ta.email || '', lab: ta.lab || '', officeHours: ta.officeHours || '',
       availableDays: ta.availableDays || [], responsibilities: ta.responsibilities?.length ? ta.responsibilities : [''],
       photoUrl: ta.photoUrl || '', contactPreference: ta.contactPreference || 'Email',
@@ -100,7 +103,7 @@ const TAManager = () => {
 
   const resetForm = () => {
     setFormData({
-      course: '', firstName: '', lastName: '', email: '', lab: '', officeHours: '',
+      courseId: '', firstName: '', lastName: '', email: '', lab: '', officeHours: '',
       availableDays: [], responsibilities: [''], photoUrl: '', contactPreference: 'Email', isActive: true, order: 0
     });
     setEditingId(null);

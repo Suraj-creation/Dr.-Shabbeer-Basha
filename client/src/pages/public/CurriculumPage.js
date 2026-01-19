@@ -1,6 +1,8 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { courseAPI, lectureAPI } from '../../services/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import { FaPlay, FaFileAlt, FaBook, FaExternalLinkAlt } from 'react-icons/fa';
 import './PublicPages.css';
 
 const CurriculumPage = () => {
@@ -10,7 +12,10 @@ const CurriculumPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { loadCourses(); }, []);
-  useEffect(() => { if (selectedCourse) loadLectures(); }, [selectedCourse]);
+  useEffect(() => {
+    if (selectedCourse) loadLectures();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCourse]);
 
   const loadCourses = async () => {
     try {
@@ -31,59 +36,111 @@ const CurriculumPage = () => {
 
   return (
     <div className="public-page">
-      <header className="site-header">
-        <h1>Course Curriculum</h1>
-        <nav className="main-nav">
-          <Link to="/">Home</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/assignments">Assignments</Link>
-          <Link to="/tutorials">Tutorials</Link>
-          <Link to="/exams">Exams</Link>
-          <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/resources">Resources</Link>
-          <Link to="/admin/login" className="admin-link">Admin</Link>
-        </nav>
-      </header>
+      <Header userRole="student" />
+      
       <main className="main-container">
-        {loading ? (<p>Loading...</p>) : (
+        <div className="page-title-section">
+          <h1>📖 Course Curriculum</h1>
+          <p>Browse through all lectures, videos, and learning materials</p>
+        </div>
+
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <span className="loading-text">Loading curriculum...</span>
+          </div>
+        ) : (
           <>
-            <div className="course-selector" style={{marginBottom: '20px'}}>
-              <label style={{marginRight: '10px'}}>Select Course: </label>
-              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} style={{padding: '8px', fontSize: '16px'}}>
-                {courses.map(course => (<option key={course._id} value={course._id}>{course.courseCode} - {course.courseTitle}</option>))}
+            <div className="course-selector-container">
+              <label>Select Course:</label>
+              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+                {courses.map(course => (
+                  <option key={course._id} value={course._id}>
+                    {course.courseCode} - {course.courseTitle}
+                  </option>
+                ))}
               </select>
             </div>
+
             <section className="lectures-section">
-              <h2>Lectures</h2>
-              {lectures.length === 0 ? (<p className="empty-message">No lectures available yet.</p>) : (
+              {lectures.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">📚</div>
+                  <h3>No Lectures Available</h3>
+                  <p>Lectures will appear here once published.</p>
+                </div>
+              ) : (
                 <div className="lectures-list">
                   {lectures.map(lecture => (
-                    <div key={lecture._id} className="course-card" style={{marginBottom: '20px'}}>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div key={lecture._id} className="content-card">
+                      <div className="content-card-header">
                         <h3>Lecture {lecture.lectureNumber}: {lecture.title}</h3>
                         {lecture.isPublished && <span className="badge badge-success">Published</span>}
                       </div>
-                      {lecture.date && (<p> {new Date(lecture.date).toLocaleDateString()}</p>)}
-                      {lecture.description && (<p>{lecture.description}</p>)}
+                      
+                      {lecture.date && (
+                        <p style={{ color: '#7f8c8d', marginBottom: '12px' }}>
+                          📅 {new Date(lecture.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        </p>
+                      )}
+                      
+                      {lecture.description && <p>{lecture.description}</p>}
+                      
                       {lecture.topicsCovered && lecture.topicsCovered.length > 0 && (
-                        <div><strong>Topics:</strong><ul>{lecture.topicsCovered.map((topic, i) => (<li key={i}>{topic}</li>))}</ul></div>
+                        <div className="links-section">
+                          <h4>📌 Topics Covered</h4>
+                          <ul className="content-list">
+                            {lecture.topicsCovered.map((topic, i) => <li key={i}>{topic}</li>)}
+                          </ul>
+                        </div>
                       )}
+                      
                       {lecture.videos && lecture.videos.length > 0 && (
-                        <div><strong> Videos:</strong><ul>{lecture.videos.map((video, i) => (
-                          <li key={i}><a href={video.url} target="_blank" rel="noopener noreferrer">{video.title} {video.duration && `(${video.duration})`}</a></li>
-                        ))}</ul></div>
+                        <div className="links-section">
+                          <h4><FaPlay /> Video Lectures</h4>
+                          <ul>
+                            {lecture.videos.map((video, i) => (
+                              <li key={i}>
+                                <a href={video.url} target="_blank" rel="noopener noreferrer">
+                                  {video.title} {video.duration && `(${video.duration})`} <FaExternalLinkAlt size={10} />
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
+                      
                       {lecture.slides && lecture.slides.length > 0 && (
-                        <div><strong> Slides:</strong><ul>{lecture.slides.map((slide, i) => (
-                          <li key={i}><a href={slide.url} target="_blank" rel="noopener noreferrer">{slide.title}</a></li>
-                        ))}</ul></div>
+                        <div className="links-section">
+                          <h4><FaFileAlt /> Slides & Materials</h4>
+                          <ul>
+                            {lecture.slides.map((slide, i) => (
+                              <li key={i}>
+                                <a href={slide.url} target="_blank" rel="noopener noreferrer">
+                                  {slide.title} <FaExternalLinkAlt size={10} />
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
+                      
                       {lecture.readingMaterials && lecture.readingMaterials.length > 0 && (
-                        <div><strong> Readings:</strong><ul>{lecture.readingMaterials.map((reading, i) => (
-                          <li key={i}>{reading.title}{reading.author && ` - ${reading.author}`}
-                            {reading.url && (<> (<a href={reading.url} target="_blank" rel="noopener noreferrer">Link</a>)</>)}
-                          </li>
-                        ))}</ul></div>
+                        <div className="links-section">
+                          <h4><FaBook /> Reading Materials</h4>
+                          <ul>
+                            {lecture.readingMaterials.map((reading, i) => (
+                              <li key={i}>
+                                {reading.title}{reading.author && ` - ${reading.author}`}
+                                {reading.url && (
+                                  <a href={reading.url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px' }}>
+                                    <FaExternalLinkAlt size={10} />
+                                  </a>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -93,7 +150,8 @@ const CurriculumPage = () => {
           </>
         )}
       </main>
-      <footer className="site-footer"><p>&copy; 2026 Educational Platform. All rights reserved.</p></footer>
+      
+      <Footer />
     </div>
   );
 };

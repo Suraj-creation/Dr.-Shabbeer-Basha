@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { tutorialAPI, courseAPI, lectureAPI } from '../../services/api';
 import './ManagerPage.css';
 
@@ -10,527 +10,61 @@ const TutorialManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    tutorialNumber: '',
-    title: '',
-    description: '',
-    topicsCovered: [''],
-    coveredInLectures: [],
-    whyItMatters: '',
-    videos: [{ title: '', url: '', duration: '' }],
-    slides: [{ title: '', url: '' }],
-    practiceProblems: [{ title: '', url: '', solutionsUrl: '' }],
-    isPublished: true
+    tutorialNumber: '', title: '', description: '', topicsCovered: [''], coveredInLectures: [],
+    whyItMatters: '', videos: [{ title: '', url: '', duration: '' }], slides: [{ title: '', url: '' }],
+    practiceProblems: [{ title: '', url: '', solutionsUrl: '' }], isPublished: true
   });
 
   useEffect(() => { loadCourses(); }, []);
-  useEffect(() => { 
-    if (selectedCourse) { 
-      loadTutorials(); 
-      loadLectures(); 
-    } 
-  }, [selectedCourse]);
+  useEffect(() => { if (selectedCourse) { loadTutorials(); loadLectures(); } }, [selectedCourse]);
 
-  const loadCourses = async () => {
-    try {
-      const response = await courseAPI.getAll();
-      const coursesData = response.data.data || [];
-      setCourses(coursesData);
-      if (coursesData.length > 0) setSelectedCourse(coursesData[0]._id);
-    } catch (error) {
-      console.error('Error loading courses:', error);
-    }
-  };
+  const loadCourses = async () => { try { const r = await courseAPI.getAll(); const d = r.data.data || []; setCourses(d); if (d.length > 0) setSelectedCourse(d[0]._id); } catch (e) { console.error(e); } };
+  const loadLectures = async () => { if (!selectedCourse) return; try { const r = await lectureAPI.getByCourse(selectedCourse); setLectures(r.data.data || []); } catch (e) { console.error(e); } };
+  const loadTutorials = async () => { if (!selectedCourse) return; try { const r = await tutorialAPI.getAllByCourse(selectedCourse); setTutorials(r.data.data || []); } catch (e) { console.error(e); } };
 
-  const loadLectures = async () => {
-    if (!selectedCourse) return;
-    try {
-      const response = await lectureAPI.getByCourse(selectedCourse);
-      setLectures(response.data.data || []);
-    } catch (error) {
-      console.error('Error loading lectures:', error);
-    }
-  };
+  const handleInputChange = (e) => { const { name, value, type, checked } = e.target; setFormData(p => ({ ...p, [name]: type === 'checkbox' ? checked : value })); };
+  const handleArrayChange = (f, i, v) => { setFormData(p => ({ ...p, [f]: p[f].map((item, idx) => idx === i ? v : item) })); };
+  const addArrayItem = (f) => { setFormData(p => ({ ...p, [f]: [...p[f], ''] })); };
+  const removeArrayItem = (f, i) => { if (formData[f].length > 1) setFormData(p => ({ ...p, [f]: p[f].filter((_, idx) => idx !== i) })); };
 
-  const loadTutorials = async () => {
-    if (!selectedCourse) return;
-    try {
-      const response = await tutorialAPI.getAllByCourse(selectedCourse);
-      setTutorials(response.data.data || []);
-    } catch (error) {
-      console.error('Error loading tutorials:', error);
-    }
-  };
+  const handleVideoChange = (i, f, v) => { setFormData(p => ({ ...p, videos: p.videos.map((item, idx) => idx === i ? { ...item, [f]: v } : item) })); };
+  const addVideo = () => { setFormData(p => ({ ...p, videos: [...p.videos, { title: '', url: '', duration: '' }] })); };
+  const removeVideo = (i) => { if (formData.videos.length > 1) setFormData(p => ({ ...p, videos: p.videos.filter((_, idx) => idx !== i) })); };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
+  const handleSlideChange = (i, f, v) => { setFormData(p => ({ ...p, slides: p.slides.map((item, idx) => idx === i ? { ...item, [f]: v } : item) })); };
+  const addSlide = () => { setFormData(p => ({ ...p, slides: [...p.slides, { title: '', url: '' }] })); };
+  const removeSlide = (i) => { if (formData.slides.length > 1) setFormData(p => ({ ...p, slides: p.slides.filter((_, idx) => idx !== i) })); };
 
-  const handleArrayChange = (field, index, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item)
-    }));
-  };
+  const handleProblemChange = (i, f, v) => { setFormData(p => ({ ...p, practiceProblems: p.practiceProblems.map((item, idx) => idx === i ? { ...item, [f]: v } : item) })); };
+  const addProblem = () => { setFormData(p => ({ ...p, practiceProblems: [...p.practiceProblems, { title: '', url: '', solutionsUrl: '' }] })); };
+  const removeProblem = (i) => { if (formData.practiceProblems.length > 1) setFormData(p => ({ ...p, practiceProblems: p.practiceProblems.filter((_, idx) => idx !== i) })); };
 
-  const addArrayItem = (field) => {
-    setFormData(prev => ({ ...prev, [field]: [...prev[field], ''] }));
-  };
-
-  const removeArrayItem = (field, index) => {
-    if (formData[field].length > 1) {
-      setFormData(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }));
-    }
-  };
-
-  const handleVideoChange = (index, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      videos: prev.videos.map((item, i) => i === index ? { ...item, [field]: value } : item)
-    }));
-  };
-
-  const addVideo = () => {
-    setFormData(prev => ({ ...prev, videos: [...prev.videos, { title: '', url: '', duration: '' }] }));
-  };
-
-  const removeVideo = (index) => {
-    if (formData.videos.length > 1) {
-      setFormData(prev => ({ ...prev, videos: prev.videos.filter((_, i) => i !== index) }));
-    }
-  };
-
-  const handleSlideChange = (index, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      slides: prev.slides.map((item, i) => i === index ? { ...item, [field]: value } : item)
-    }));
-  };
-
-  const addSlide = () => {
-    setFormData(prev => ({ ...prev, slides: [...prev.slides, { title: '', url: '' }] }));
-  };
-
-  const removeSlide = (index) => {
-    if (formData.slides.length > 1) {
-      setFormData(prev => ({ ...prev, slides: prev.slides.filter((_, i) => i !== index) }));
-    }
-  };
-
-  const handleProblemChange = (index, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      practiceProblems: prev.practiceProblems.map((item, i) => i === index ? { ...item, [field]: value } : item)
-    }));
-  };
-
-  const addProblem = () => {
-    setFormData(prev => ({ ...prev, practiceProblems: [...prev.practiceProblems, { title: '', url: '', solutionsUrl: '' }] }));
-  };
-
-  const removeProblem = (index) => {
-    if (formData.practiceProblems.length > 1) {
-      setFormData(prev => ({ ...prev, practiceProblems: prev.practiceProblems.filter((_, i) => i !== index) }));
-    }
-  };
-
-  const handleLectureToggle = (lectureId) => {
-    setFormData(prev => ({
-      ...prev,
-      coveredInLectures: prev.coveredInLectures.includes(lectureId)
-        ? prev.coveredInLectures.filter(id => id !== lectureId)
-        : [...prev.coveredInLectures, lectureId]
-    }));
-  };
+  const handleLectureToggle = (id) => { setFormData(p => ({ ...p, coveredInLectures: p.coveredInLectures.includes(id) ? p.coveredInLectures.filter(x => x !== id) : [...p.coveredInLectures, id] })); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const dataToSubmit = {
-        ...formData,
-        courseId: selectedCourse,
-        topicsCovered: formData.topicsCovered.filter(t => t.trim()),
-        videos: formData.videos.filter(v => v.title.trim() || v.url.trim()),
-        slides: formData.slides.filter(s => s.title.trim() || s.url.trim()),
-        practiceProblems: formData.practiceProblems.filter(p => p.title.trim())
-      };
-
-      if (editingId) {
-        await tutorialAPI.update(editingId, dataToSubmit);
-        alert('Tutorial updated successfully!');
-      } else {
-        await tutorialAPI.create(dataToSubmit);
-        alert('Tutorial created successfully!');
-      }
-      resetForm();
-      loadTutorials();
-    } catch (error) {
-      console.error('Error saving tutorial:', error);
-      alert('Failed to save tutorial. Please check all required fields.');
-    }
+      const data = { ...formData, courseId: selectedCourse, topicsCovered: formData.topicsCovered.filter(t => t.trim()), videos: formData.videos.filter(v => v.title.trim() || v.url.trim()), slides: formData.slides.filter(s => s.title.trim() || s.url.trim()), practiceProblems: formData.practiceProblems.filter(p => p.title.trim()) };
+      if (editingId) { await tutorialAPI.update(editingId, data); alert('Updated!'); }
+      else { await tutorialAPI.create(data); alert('Created!'); }
+      resetForm(); loadTutorials();
+    } catch (e) { console.error(e); alert('Failed'); }
   };
 
-  const handleEdit = (tutorial) => {
-    setFormData({
-      tutorialNumber: tutorial.tutorialNumber || '',
-      title: tutorial.title || '',
-      description: tutorial.description || '',
-      topicsCovered: tutorial.topicsCovered?.length ? tutorial.topicsCovered : [''],
-      coveredInLectures: tutorial.coveredInLectures?.map(l => l._id || l) || [],
-      whyItMatters: tutorial.whyItMatters || '',
-      videos: tutorial.videos?.length ? tutorial.videos : [{ title: '', url: '', duration: '' }],
-      slides: tutorial.slides?.length ? tutorial.slides : [{ title: '', url: '' }],
-      practiceProblems: tutorial.practiceProblems?.length ? tutorial.practiceProblems : [{ title: '', url: '', solutionsUrl: '' }],
-      isPublished: tutorial.isPublished !== undefined ? tutorial.isPublished : true
-    });
-    setEditingId(tutorial._id);
-    setShowForm(true);
+  const handleEdit = (t) => {
+    setFormData({ tutorialNumber: t.tutorialNumber || '', title: t.title || '', description: t.description || '', topicsCovered: t.topicsCovered?.length ? t.topicsCovered : [''], coveredInLectures: t.coveredInLectures?.map(l => l._id || l) || [], whyItMatters: t.whyItMatters || '', videos: t.videos?.length ? t.videos : [{ title: '', url: '', duration: '' }], slides: t.slides?.length ? t.slides : [{ title: '', url: '' }], practiceProblems: t.practiceProblems?.length ? t.practiceProblems : [{ title: '', url: '', solutionsUrl: '' }], isPublished: t.isPublished !== undefined ? t.isPublished : true });
+    setEditingId(t._id); setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this tutorial?')) {
-      try {
-        await tutorialAPI.delete(id);
-        alert('Tutorial deleted successfully!');
-        loadTutorials();
-      } catch (error) {
-        console.error('Error deleting tutorial:', error);
-        alert('Failed to delete tutorial');
-      }
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      tutorialNumber: '',
-      title: '',
-      description: '',
-      topicsCovered: [''],
-      coveredInLectures: [],
-      whyItMatters: '',
-      videos: [{ title: '', url: '', duration: '' }],
-      slides: [{ title: '', url: '' }],
-      practiceProblems: [{ title: '', url: '', solutionsUrl: '' }],
-      isPublished: true
-    });
-    setEditingId(null);
-    setShowForm(false);
-  };
+  const handleDelete = async (id) => { if (window.confirm('Delete?')) { try { await tutorialAPI.delete(id); alert('Deleted!'); loadTutorials(); } catch (e) { alert('Failed'); } } };
+  const resetForm = () => { setFormData({ tutorialNumber: '', title: '', description: '', topicsCovered: [''], coveredInLectures: [], whyItMatters: '', videos: [{ title: '', url: '', duration: '' }], slides: [{ title: '', url: '' }], practiceProblems: [{ title: '', url: '', solutionsUrl: '' }], isPublished: true }); setEditingId(null); setShowForm(false); };
 
   return (
     <div className="manager-page">
-      <div className="page-header">
-        <h1>📚 Tutorial Manager</h1>
-        <button 
-          className="btn-primary" 
-          onClick={() => setShowForm(!showForm)} 
-          disabled={!selectedCourse}
-        >
-          {showForm ? '✕ Cancel' : '➕ Add New Tutorial'}
-        </button>
-      </div>
-
-      {/* Course Selector */}
-      <div className="course-selector">
-        <label>Select Course:</label>
-        <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
-          <option value="">-- Choose a course --</option>
-          {courses.map(course => (
-            <option key={course._id} value={course._id}>
-              {course.courseCode} - {course.courseTitle}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Form */}
-      {showForm && (
-        <div className="form-card">
-          <h2>{editingId ? '✏️ Edit Tutorial' : '➕ Create New Tutorial'}</h2>
-          <form onSubmit={handleSubmit}>
-            {/* Basic Info Section */}
-            <div className="form-section">
-              <h3 className="section-title">📋 Basic Information</h3>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Tutorial Number *</label>
-                  <input
-                    type="number"
-                    name="tutorialNumber"
-                    value={formData.tutorialNumber}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 1"
-                    required
-                    min="1"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Title *</label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Introduction to Python Programming"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows="3"
-                  placeholder="Brief description of what this tutorial covers..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Why It Matters</label>
-                <textarea
-                  name="whyItMatters"
-                  value={formData.whyItMatters}
-                  onChange={handleInputChange}
-                  rows="2"
-                  placeholder="Explain why students should learn this topic..."
-                />
-              </div>
-            </div>
-
-            {/* Topics Section */}
-            <div className="form-section">
-              <h3 className="section-title">📝 Topics Covered</h3>
-              {formData.topicsCovered.map((topic, index) => (
-                <div key={index} className="array-item">
-                  <input
-                    type="text"
-                    value={topic}
-                    onChange={(e) => handleArrayChange('topicsCovered', index, e.target.value)}
-                    placeholder={`Topic ${index + 1}`}
-                  />
-                  <button type="button" onClick={() => removeArrayItem('topicsCovered', index)} className="btn-remove">
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={() => addArrayItem('topicsCovered')} className="btn-secondary">
-                + Add Topic
-              </button>
-            </div>
-
-            {/* Related Lectures Section */}
-            <div className="form-section">
-              <h3 className="section-title">🎓 Related Lectures</h3>
-              <div className="checkbox-group">
-                {lectures.length === 0 ? (
-                  <p className="empty-message">No published lectures available. Create lectures first.</p>
-                ) : (
-                  lectures.map(lecture => (
-                    <label key={lecture._id} className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={formData.coveredInLectures.includes(lecture._id)}
-                        onChange={() => handleLectureToggle(lecture._id)}
-                      />
-                      <span>Lecture {lecture.lectureNumber}: {lecture.title}</span>
-                    </label>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Videos Section */}
-            <div className="form-section">
-              <h3 className="section-title">🎥 Tutorial Videos</h3>
-              {formData.videos.map((video, index) => (
-                <div key={index} className="nested-item">
-                  <input
-                    type="text"
-                    value={video.title}
-                    onChange={(e) => handleVideoChange(index, 'title', e.target.value)}
-                    placeholder="Video Title (e.g., Part 1 - Basics)"
-                    style={{ flex: 2 }}
-                  />
-                  <input
-                    type="url"
-                    value={video.url}
-                    onChange={(e) => handleVideoChange(index, 'url', e.target.value)}
-                    placeholder="YouTube URL"
-                    style={{ flex: 3 }}
-                  />
-                  <input
-                    type="text"
-                    value={video.duration}
-                    onChange={(e) => handleVideoChange(index, 'duration', e.target.value)}
-                    placeholder="Duration (e.g., 15:30)"
-                    style={{ width: '100px', flex: 'none' }}
-                  />
-                  <button type="button" onClick={() => removeVideo(index)} className="btn-remove">
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={addVideo} className="btn-secondary">
-                + Add Video
-              </button>
-            </div>
-
-            {/* Slides Section */}
-            <div className="form-section">
-              <h3 className="section-title">📄 Tutorial Slides</h3>
-              {formData.slides.map((slide, index) => (
-                <div key={index} className="nested-item">
-                  <input
-                    type="text"
-                    value={slide.title}
-                    onChange={(e) => handleSlideChange(index, 'title', e.target.value)}
-                    placeholder="Slide Title"
-                    style={{ flex: 1 }}
-                  />
-                  <input
-                    type="url"
-                    value={slide.url}
-                    onChange={(e) => handleSlideChange(index, 'url', e.target.value)}
-                    placeholder="URL (Google Drive, Dropbox, etc.)"
-                    style={{ flex: 2 }}
-                  />
-                  <button type="button" onClick={() => removeSlide(index)} className="btn-remove">
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={addSlide} className="btn-secondary">
-                + Add Slides
-              </button>
-            </div>
-
-            {/* Practice Problems Section */}
-            <div className="form-section">
-              <h3 className="section-title">✏️ Practice Problems</h3>
-              {formData.practiceProblems.map((problem, index) => (
-                <div key={index} className="nested-item">
-                  <input
-                    type="text"
-                    value={problem.title}
-                    onChange={(e) => handleProblemChange(index, 'title', e.target.value)}
-                    placeholder="Problem Title"
-                    style={{ flex: 1 }}
-                  />
-                  <input
-                    type="url"
-                    value={problem.url}
-                    onChange={(e) => handleProblemChange(index, 'url', e.target.value)}
-                    placeholder="Problem URL"
-                    style={{ flex: 1 }}
-                  />
-                  <input
-                    type="url"
-                    value={problem.solutionsUrl}
-                    onChange={(e) => handleProblemChange(index, 'solutionsUrl', e.target.value)}
-                    placeholder="Solutions URL (optional)"
-                    style={{ flex: 1 }}
-                  />
-                  <button type="button" onClick={() => removeProblem(index)} className="btn-remove">
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={addProblem} className="btn-secondary">
-                + Add Problem
-              </button>
-            </div>
-
-            {/* Publish Toggle */}
-            <div className="form-section">
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="isPublished"
-                    checked={formData.isPublished}
-                    onChange={handleInputChange}
-                  />
-                  <span>✅ Publish immediately (visible to students)</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Form Actions */}
-            <div className="form-actions">
-              <button type="submit" className="btn-primary">
-                {editingId ? '💾 Update Tutorial' : '➕ Create Tutorial'}
-              </button>
-              <button type="button" className="btn-secondary" onClick={resetForm}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Tutorials List */}
-      {selectedCourse && (
-        <div className="list-card">
-          <h2>📚 Tutorials ({tutorials.length})</h2>
-          {tutorials.length === 0 ? (
-            <p className="empty-message">No tutorials yet. Create your first tutorial!</p>
-          ) : (
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Topics</th>
-                    <th>Videos</th>
-                    <th>Slides</th>
-                    <th>Problems</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tutorials.map(tutorial => (
-                    <tr key={tutorial._id}>
-                      <td><strong>{tutorial.tutorialNumber}</strong></td>
-                      <td>
-                        <strong>{tutorial.title}</strong>
-                        {tutorial.description && (
-                          <br />
-                        )}
-                        <small style={{ color: '#666' }}>
-                          {tutorial.description?.substring(0, 50)}
-                          {tutorial.description?.length > 50 ? '...' : ''}
-                        </small>
-                      </td>
-                      <td>{tutorial.topicsCovered?.length || 0}</td>
-                      <td>{tutorial.videos?.length || 0} 🎥</td>
-                      <td>{tutorial.slides?.length || 0} 📄</td>
-                      <td>{tutorial.practiceProblems?.length || 0} ✏️</td>
-                      <td>
-                        <span className={`badge ${tutorial.isPublished ? 'badge-success' : 'badge-warning'}`}>
-                          {tutorial.isPublished ? 'Published' : 'Draft'}
-                        </span>
-                      </td>
-                      <td className="actions">
-                        <button className="btn-edit" onClick={() => handleEdit(tutorial)}>
-                          Edit
-                        </button>
-                        <button className="btn-delete" onClick={() => handleDelete(tutorial._id)}>
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="page-header"><h1>Tutorial Manager</h1><button className="btn-primary" onClick={() => setShowForm(!showForm)} disabled={!selectedCourse}>{showForm ? 'Cancel' : 'Add New'}</button></div>
+      <div className="course-selector"><label>Select Course:</label><select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}><option value="">-- Choose --</option>{courses.map(c => <option key={c._id} value={c._id}>{c.courseCode} - {c.courseTitle}</option>)}</select></div>
+      {showForm && <div className="form-card"><h2>{editingId ? 'Edit' : 'Create'} Tutorial</h2><form onSubmit={handleSubmit}><div className="form-section"><h3 className="section-title">Basic Info</h3><div className="form-row"><div className="form-group"><label>Tutorial # *</label><input type="number" name="tutorialNumber" value={formData.tutorialNumber} onChange={handleInputChange} required min="1" /></div><div className="form-group"><label>Title *</label><input type="text" name="title" value={formData.title} onChange={handleInputChange} required /></div></div><div className="form-group"><label>Description</label><textarea name="description" value={formData.description} onChange={handleInputChange} rows="3" /></div><div className="form-group"><label>Why It Matters</label><textarea name="whyItMatters" value={formData.whyItMatters} onChange={handleInputChange} rows="2" /></div></div><div className="form-section"><h3 className="section-title">Topics</h3>{formData.topicsCovered.map((t, i) => <div key={i} className="array-item"><input type="text" value={t} onChange={(e) => handleArrayChange('topicsCovered', i, e.target.value)} /><button type="button" onClick={() => removeArrayItem('topicsCovered', i)} className="btn-remove">X</button></div>)}<button type="button" onClick={() => addArrayItem('topicsCovered')} className="btn-secondary">+ Add</button></div><div className="form-section"><h3 className="section-title">Related Lectures</h3><div className="checkbox-group">{lectures.length === 0 ? <p className="empty-message">No lectures available.</p> : lectures.map(l => <label key={l._id} className="checkbox-label"><input type="checkbox" checked={formData.coveredInLectures.includes(l._id)} onChange={() => handleLectureToggle(l._id)} /><span>L{l.lectureNumber}: {l.title}</span></label>)}</div></div><div className="form-section"><h3 className="section-title">Videos</h3>{formData.videos.map((v, i) => <div key={i} className="nested-item"><input type="text" value={v.title} onChange={(e) => handleVideoChange(i, 'title', e.target.value)} placeholder="Title" style={{flex:2}} /><input type="url" value={v.url} onChange={(e) => handleVideoChange(i, 'url', e.target.value)} placeholder="URL" style={{flex:3}} /><input type="text" value={v.duration} onChange={(e) => handleVideoChange(i, 'duration', e.target.value)} placeholder="Duration" style={{width:'100px',flex:'none'}} /><button type="button" onClick={() => removeVideo(i)} className="btn-remove">X</button></div>)}<button type="button" onClick={addVideo} className="btn-secondary">+ Add</button></div><div className="form-section"><h3 className="section-title">Slides</h3>{formData.slides.map((s, i) => <div key={i} className="nested-item"><input type="text" value={s.title} onChange={(e) => handleSlideChange(i, 'title', e.target.value)} placeholder="Title" style={{flex:1}} /><input type="url" value={s.url} onChange={(e) => handleSlideChange(i, 'url', e.target.value)} placeholder="URL" style={{flex:2}} /><button type="button" onClick={() => removeSlide(i)} className="btn-remove">X</button></div>)}<button type="button" onClick={addSlide} className="btn-secondary">+ Add</button></div><div className="form-section"><h3 className="section-title">Practice Problems</h3>{formData.practiceProblems.map((p, i) => <div key={i} className="nested-item"><input type="text" value={p.title} onChange={(e) => handleProblemChange(i, 'title', e.target.value)} placeholder="Title" style={{flex:1}} /><input type="url" value={p.url} onChange={(e) => handleProblemChange(i, 'url', e.target.value)} placeholder="Problem URL" style={{flex:1}} /><input type="url" value={p.solutionsUrl} onChange={(e) => handleProblemChange(i, 'solutionsUrl', e.target.value)} placeholder="Solutions URL" style={{flex:1}} /><button type="button" onClick={() => removeProblem(i)} className="btn-remove">X</button></div>)}<button type="button" onClick={addProblem} className="btn-secondary">+ Add</button></div><div className="form-section"><div className="form-group"><label className="checkbox-label"><input type="checkbox" name="isPublished" checked={formData.isPublished} onChange={handleInputChange} /><span>Publish immediately</span></label></div></div><div className="form-actions"><button type="submit" className="btn-primary">{editingId ? 'Update' : 'Create'}</button><button type="button" className="btn-secondary" onClick={resetForm}>Cancel</button></div></form></div>}
+      {selectedCourse && <div className="list-card"><h2>Tutorials ({tutorials.length})</h2>{tutorials.length === 0 ? <p className="empty-message">No tutorials yet.</p> : <div className="table-container"><table><thead><tr><th>#</th><th>Title</th><th>Topics</th><th>Videos</th><th>Slides</th><th>Problems</th><th>Status</th><th>Actions</th></tr></thead><tbody>{tutorials.map(t => <tr key={t._id}><td><strong>{t.tutorialNumber}</strong></td><td><strong>{t.title}</strong><br/><small style={{color:'#666'}}>{t.description?.substring(0,50)}{t.description?.length > 50 ? '...' : ''}</small></td><td>{t.topicsCovered?.length || 0}</td><td>{t.videos?.length || 0}</td><td>{t.slides?.length || 0}</td><td>{t.practiceProblems?.length || 0}</td><td><span className={'badge ' + (t.isPublished ? 'badge-success' : 'badge-warning')}>{t.isPublished ? 'Published' : 'Draft'}</span></td><td className="actions"><button className="btn-edit" onClick={() => handleEdit(t)}>Edit</button><button className="btn-delete" onClick={() => handleDelete(t._id)}>Delete</button></td></tr>)}</tbody></table></div>}</div>}
     </div>
   );
 };

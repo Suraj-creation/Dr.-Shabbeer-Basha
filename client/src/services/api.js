@@ -7,7 +7,8 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  timeout: 30000 // 30 second timeout
 });
 
 // Add token to requests
@@ -20,6 +21,33 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle specific error cases
+    if (error.response) {
+      // Server responded with error status
+      if (error.response.status === 401) {
+        // Unauthorized - clear token and redirect to login
+        localStorage.removeItem('token');
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes('/admin/login')) {
+          window.location.href = '/admin/login';
+        }
+      }
+      console.error('API Error:', error.response.data?.message || error.message);
+    } else if (error.request) {
+      // Request made but no response received
+      console.error('Network Error: No response received from server');
+    } else {
+      // Something happened in setting up the request
+      console.error('Request Error:', error.message);
+    }
+    return Promise.reject(error);
+  }
 );
 
 // Authentication API
@@ -98,6 +126,15 @@ export const resourceAPI = {
   create: (data) => api.post('/resources', data),
   update: (id, data) => api.put(`/resources/${id}`, data),
   delete: (id) => api.delete(`/resources/${id}`)
+};
+
+// Teaching Assistant API
+export const taAPI = {
+  getByCourse: (courseId) => api.get(`/teaching-assistants/course/${courseId}`),
+  getById: (id) => api.get(`/teaching-assistants/${id}`),
+  create: (data) => api.post('/teaching-assistants', data),
+  update: (id, data) => api.put(`/teaching-assistants/${id}`, data),
+  delete: (id) => api.delete(`/teaching-assistants/${id}`)
 };
 
 export default api;

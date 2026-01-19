@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Public Pages
 import HomePage from './pages/public/HomePage';
-import CurriculumPage from './pages/public/CurriculumPage';
+import LecturesPage from './pages/public/LecturesPage';
 import AssignmentsPage from './pages/public/AssignmentsPage';
 import ResourcesPage from './pages/public/ResourcesPage';
 import TutorialsPage from './pages/public/TutorialsPage';
@@ -47,7 +47,9 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/curriculum" element={<CurriculumPage />} />
+          <Route path="/lectures" element={<LecturesPage />} />
+          {/* Redirect old curriculum route to lectures */}
+          <Route path="/curriculum" element={<Navigate to="/lectures" replace />} />
           <Route path="/assignments" element={<AssignmentsPage />} />
           <Route path="/tutorials" element={<TutorialsPage />} />
           <Route path="/exams" element={<ExamsPage />} />

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { courseAPI } from '../../services/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import { FaBookOpen, FaArrowRight, FaGraduationCap, FaCalendarAlt, FaUserTie, FaLayerGroup, FaFlask, FaBrain, FaLaptopCode, FaRocket } from 'react-icons/fa';
 import './PublicPages.css';
 
 const HomePage = () => {
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadCourses();
@@ -16,61 +20,221 @@ const HomePage = () => {
       setCourses(res.data.data || []);
     } catch (error) {
       console.error('Error loading courses:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="public-page">
-      <header className="site-header">
-        <div className="container">
-          <h1>📚 Educational Platform</h1>
-          <nav className="main-nav">
-            <Link to="/">Home</Link>
-            <Link to="/curriculum">Curriculum</Link>
-            <Link to="/assignments">Assignments</Link>
-            <Link to="/tutorials">Tutorials</Link>
-            <Link to="/exams">Exams</Link>
-            <Link to="/prerequisites">Prerequisites</Link>
-            <Link to="/resources">Resources</Link>
-            <a href="/admin/login" className="admin-link">Admin Login</a>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
-      <main className="container">
-        <section className="hero">
-          <h2>Welcome to Our Course Platform</h2>
-          <p>A comprehensive educational platform for managing and accessing course materials.</p>
+      <main className="main-content">
+        {/* Hero Section - Production Grade */}
+        <section className="hero-section">
+          <div className="hero-background">
+            <div className="hero-gradient"></div>
+            <div className="hero-pattern"></div>
+            <div className="hero-glow"></div>
+          </div>
+          
+          <div className="hero-content">
+            <div className="hero-badge">
+              <span className="badge-icon">🎯</span>
+              <span>DATA302 • January 2026</span>
+            </div>
+            
+            <h1 className="hero-title">
+              <span className="title-accent">Deep Learning</span>
+              <span className="title-sub">DATA302 - Vidyashilp University</span>
+            </h1>
+            
+            <p className="hero-description">
+              Master neural networks from fundamentals to advanced architectures. Learn CNNs, RNNs, 
+              Transformers, and model optimization techniques using PyTorch and TensorFlow. 
+              Build, train, and deploy production-ready deep learning systems.
+            </p>
+            
+            <div className="hero-cta">
+              <Link to="/lectures" className="btn-hero-primary">
+                <FaBookOpen />
+                Explore Lectures
+                <FaArrowRight className="btn-arrow" />
+              </Link>
+              <Link to="/prerequisites" className="btn-hero-secondary">
+                View Prerequisites
+              </Link>
+            </div>
+
+            {/* Instructor Info */}
+            <div className="instructor-highlight">
+              <div className="instructor-card">
+                <FaUserTie className="instructor-icon" />
+                <div className="instructor-info">
+                  <span className="instructor-label">Primary Instructor</span>
+                  <span className="instructor-name">Dr. Shabbeer Basha</span>
+                  <span className="instructor-title">Associate Professor, SET, Vidyashilp University</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section className="courses-section">
-          <h2>Available Courses</h2>
-          <div className="course-grid">
-            {courses.length === 0 ? (
-              <p>No courses available yet.</p>
-            ) : (
-              courses.map(course => (
-                <div key={course._id} className="course-card">
-                  <h3>{course.courseCode}</h3>
-                  <h4>{course.courseTitle}</h4>
-                  <p>{course.description?.substring(0, 100)}...</p>
-                  <div className="course-meta">
-                    <span>👤 {course.instructor?.name}</span>
-                    <span>📅 {course.semester}</span>
-                  </div>
-                  <Link to="/curriculum" className="btn">View Curriculum</Link>
+        {/* Course Learning Outcomes Section */}
+        <section className="clo-section">
+          <div className="section-container">
+            <div className="section-header">
+              <div className="section-badge">Course Learning Outcomes</div>
+              <h2 className="section-title">What You'll Master</h2>
+              <p className="section-subtitle">
+                Upon successful completion of this course, you will gain these essential skills
+              </p>
+            </div>
+            
+            <div className="clo-grid">
+              <div className="clo-card">
+                <div className="clo-icon"><FaBrain /></div>
+                <h3>CLO-1: Fundamental Concepts</h3>
+                <p>Explain the fundamental concepts and working principles of both shallow and deep neural networks, including biological inspiration and mathematical foundations.</p>
+              </div>
+              <div className="clo-card">
+                <div className="clo-icon"><FaFlask /></div>
+                <h3>CLO-2: Model Application</h3>
+                <p>Apply suitable neural network models to solve given tasks by selecting appropriate architectures (feed-forward, CNN, RNN) based on data characteristics.</p>
+              </div>
+              <div className="clo-card">
+                <div className="clo-icon"><FaLaptopCode /></div>
+                <h3>CLO-3: Implementation</h3>
+                <p>Implement Deep Learning based AI Systems for real-world datasets using modern frameworks like PyTorch, TensorFlow, and Keras through 15 comprehensive lab programs.</p>
+              </div>
+              <div className="clo-card">
+                <div className="clo-icon"><FaRocket /></div>
+                <h3>CLO-4: Optimization & Deployment</h3>
+                <p>Optimize deep learning models for performance, memory efficiency, and deployment on edge devices using quantization, pruning, and knowledge distillation.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Course Modules Preview */}
+        <section className="modules-preview-section">
+          <div className="section-container">
+            <div className="section-header">
+              <div className="section-badge">Course Modules</div>
+              <h2 className="section-title">Comprehensive Curriculum</h2>
+              <p className="section-subtitle">5 in-depth modules covering foundational to advanced topics</p>
+            </div>
+            
+            <div className="modules-grid">
+              <div className="module-card">
+                <span className="module-number">01</span>
+                <h4>Introduction to Neural Networks</h4>
+                <p>Perceptrons, Feed-Forward Networks, Back-Propagation, Optimization Algorithms (SGD, Adam, RMSProp)</p>
+              </div>
+              <div className="module-card">
+                <span className="module-number">02</span>
+                <h4>Convolutional Neural Networks</h4>
+                <p>CNN Architectures, AlexNet, VGG, ResNet, MobileNet, Regularization Techniques, Feature Visualization</p>
+              </div>
+              <div className="module-card">
+                <span className="module-number">03</span>
+                <h4>Recurrent Neural Networks</h4>
+                <p>RNNs, LSTM, GRU, Attention Mechanisms, Sequence-to-Sequence Models, Vanishing Gradients</p>
+              </div>
+              <div className="module-card">
+                <span className="module-number">04</span>
+                <h4>Autoencoders & GANs</h4>
+                <p>Variational Autoencoders, Generative Adversarial Networks, Image Generation, Anomaly Detection</p>
+              </div>
+              <div className="module-card">
+                <span className="module-number">05</span>
+                <h4>Model Optimization</h4>
+                <p>Quantization, Pruning, Knowledge Distillation, Edge Deployment, Mobile & IoT Applications</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Courses Section */}
+        <section className="courses-section-enhanced">
+          <div className="section-container">
+            <div className="section-header">
+              <div className="section-badge">Available Courses</div>
+              <h2 className="section-title">Explore Our Curriculum</h2>
+              <p className="section-subtitle">
+                Dive into our carefully structured courses designed to take you from fundamentals to expertise
+              </p>
+            </div>
+            
+            {loading ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <span className="loading-text">Loading courses...</span>
+              </div>
+            ) : courses.length === 0 ? (
+              <div className="empty-state-enhanced">
+                <div className="empty-icon-wrapper">
+                  <FaGraduationCap className="empty-icon" />
                 </div>
-              ))
+                <h3>No Courses Available</h3>
+                <p>Check back later for new courses.</p>
+              </div>
+            ) : (
+              <div className="course-grid-enhanced">
+                {courses.map((course, index) => (
+                  <article 
+                    key={course._id} 
+                    className="course-card-enhanced"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="card-header">
+                      <span className="course-code-badge">{course.courseCode}</span>
+                      {course.isActive && <span className="status-badge active">Active</span>}
+                    </div>
+                    
+                    <h3 className="course-title">{course.courseTitle}</h3>
+                    
+                    <div className="card-divider"></div>
+                    
+                    <p className="course-description">
+                      {course.description?.substring(0, 150)}
+                      {course.description?.length > 150 && '...'}
+                    </p>
+                    
+                    <div className="course-meta-grid">
+                      {course.instructor?.name && (
+                        <div className="meta-item">
+                          <FaUserTie className="meta-icon" />
+                          <span>{course.instructor.name}</span>
+                        </div>
+                      )}
+                      <div className="meta-item">
+                        <FaCalendarAlt className="meta-icon" />
+                        <span>{course.semester || 'Jan-May 2026'}</span>
+                      </div>
+                      {course.credits && (
+                        <div className="meta-item">
+                          <FaLayerGroup className="meta-icon" />
+                          <span>{course.credits} Credits</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="card-footer">
+                      <Link to="/lectures" className="card-cta">
+                        View Lectures
+                        <FaArrowRight />
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
             )}
           </div>
         </section>
       </main>
 
-      <footer className="site-footer">
-        <div className="container">
-          <p>© 2026 Educational Platform. Built with ❤️ for educators and students.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

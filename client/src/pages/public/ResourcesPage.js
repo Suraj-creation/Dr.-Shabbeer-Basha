@@ -1,6 +1,8 @@
-﻿import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { courseAPI, resourceAPI } from '../../services/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import { FaExternalLinkAlt, FaStar } from 'react-icons/fa';
 import './PublicPages.css';
 
 const ResourcesPage = () => {
@@ -17,90 +19,69 @@ const ResourcesPage = () => {
 
   const loadCourses = async () => {
     try {
-      const response = await courseAPI.getAll();
-      const coursesData = response.data.data || [];
-      setCourses(coursesData);
-      if (coursesData.length > 0) setSelectedCourse(coursesData[0]._id);
+      const r = await courseAPI.getAll();
+      const d = r.data.data || [];
+      setCourses(d);
+      if (d.length > 0) setSelectedCourse(d[0]._id);
       setLoading(false);
-    } catch (error) { console.error('Error:', error); setLoading(false); }
+    } catch (e) { console.error(e); setLoading(false); }
   };
 
   const loadResources = async () => {
     try {
-      const response = await resourceAPI.getByCourse(selectedCourse);
-      setResources(response.data.data || []);
-    } catch (error) { console.error('Error:', error); }
+      const r = await resourceAPI.getByCourse(selectedCourse);
+      setResources(r.data.data || []);
+    } catch (e) { console.error(e); }
   };
 
-  const filteredResources = selectedCategory === 'All' 
-    ? resources 
-    : resources.filter(r => r.category === selectedCategory);
+  const filteredResources = selectedCategory === 'All' ? resources : resources.filter(r => r.category === selectedCategory);
 
   return (
     <div className="public-page">
-      <header className="site-header">
-        <h1>Resources</h1>
-        <nav className="main-nav">
-          <Link to="/">Home</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/assignments">Assignments</Link>
-          <Link to="/tutorials">Tutorials</Link>
-          <Link to="/exams">Exams</Link>
-          <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/resources">Resources</Link>
-          <Link to="/admin/login" className="admin-link">Admin</Link>
-        </nav>
-      </header>
+      <Header />
       <main className="main-container">
-        {loading ? (<p>Loading...</p>) : (
+        <div className="page-title-section">
+          <h1>Resources</h1>
+          <p>Books, tools, papers, and other learning materials</p>
+        </div>
+        {loading ? (
+          <div className="loading-container"><div className="loading-spinner"></div><span className="loading-text">Loading...</span></div>
+        ) : (
           <>
-            <div style={{display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap'}}>
-              <div className="course-selector">
-                <label style={{marginRight: '10px'}}>Select Course: </label>
-                <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} style={{padding: '8px', fontSize: '16px'}}>
-                  {courses.map(course => (<option key={course._id} value={course._id}>{course.courseCode} - {course.courseTitle}</option>))}
-                </select>
-              </div>
-              <div>
-                <label style={{marginRight: '10px'}}>Filter by Category: </label>
-                <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} style={{padding: '8px', fontSize: '16px'}}>
-                  {categories.map(cat => (<option key={cat} value={cat}>{cat}</option>))}
-                </select>
-              </div>
+            <div className="course-selector-container">
+              <label>Select Course:</label>
+              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+                {courses.map(c => <option key={c._id} value={c._id}>{c.courseCode} - {c.courseTitle}</option>)}
+              </select>
+              <label style={{marginLeft:'20px'}}>Category:</label>
+              <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
             </div>
             <section className="resources-section">
-              <h2>Course Resources</h2>
-              {filteredResources.length === 0 ? (<p className="empty-message">No resources available in this category.</p>) : (
-                <div className="courses-grid">
-                  {filteredResources.map(resource => (
-                    <div key={resource._id} className="course-card">
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <h3>{resource.icon && `${resource.icon} `}{resource.title}</h3>
-                        {resource.isPremium && <span className="badge badge-warning">Premium</span>}
+              {filteredResources.length === 0 ? (
+                <div className="empty-state"><div className="empty-state-icon"></div><h3>No Resources Available</h3><p>Resources will appear here when added.</p></div>
+              ) : (
+                <div className="course-grid">
+                  {filteredResources.map(r => (
+                    <div key={r._id} className="course-card">
+                      <div className="content-card-header">
+                        <h4>{r.icon && `${r.icon} `}{r.title}</h4>
+                        {r.isPremium && <span className="badge badge-warning"><FaStar size={10} /> Premium</span>}
                       </div>
-                      <p style={{fontSize: '14px', color: '#666', marginBottom: '10px'}}>{resource.category}</p>
-                      <p>{resource.description}</p>
-                      {(resource.author || resource.publisher || resource.year) && (
-                        <p style={{fontSize: '14px', color: '#666', marginTop: '10px'}}>
-                          {resource.author && `Author: ${resource.author}`}
-                          {resource.publisher && ` | Publisher: ${resource.publisher}`}
-                          {resource.year && ` | Year: ${resource.year}`}
+                      <span className="badge badge-info" style={{marginBottom:'12px'}}>{r.category}</span>
+                      {r.description && <p>{r.description}</p>}
+                      {(r.author || r.publisher || r.year) && (
+                        <p style={{fontSize:'0.9rem',color:'#7f8c8d',marginTop:'12px'}}>
+                          {r.author && `By ${r.author}`}{r.publisher && `  ${r.publisher}`}{r.year && `  ${r.year}`}
                         </p>
                       )}
-                      {resource.tags && resource.tags.length > 0 && (
-                        <div style={{marginTop: '10px'}}>
-                          {resource.tags.map((tag, i) => (
-                            <span key={i} style={{display: 'inline-block', background: '#e3f2fd', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', marginRight: '5px', marginBottom: '5px'}}>{tag}</span>
-                          ))}
+                      {r.tags && r.tags.length > 0 && (
+                        <div style={{marginTop:'12px',display:'flex',flexWrap:'wrap',gap:'6px'}}>
+                          {r.tags.map((tag, i) => <span key={i} style={{display:'inline-block',background:'rgba(52,152,219,0.1)',color:'#3498db',padding:'4px 10px',borderRadius:'20px',fontSize:'0.8rem',fontWeight:500}}>{tag}</span>)}
                         </div>
                       )}
-                      {resource.url && (
-                        <div style={{marginTop: '15px'}}>
-                          <a href={resource.url} target="_blank" rel="noopener noreferrer" style={{display: 'inline-block', padding: '10px 20px', background: '#667eea', color: 'white', textDecoration: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer', transition: 'background 0.3s'}}>
-                            🔗 View Resource
-                          </a>
-                        </div>
-                      )}
+                      {r.url && <div style={{marginTop:'16px'}}><a href={r.url} target="_blank" rel="noopener noreferrer" className="btn">View Resource <FaExternalLinkAlt size={12} /></a></div>}
                     </div>
                   ))}
                 </div>
@@ -109,7 +90,7 @@ const ResourcesPage = () => {
           </>
         )}
       </main>
-      <footer className="site-footer"><p>&copy; 2026 Educational Platform. All rights reserved.</p></footer>
+      <Footer />
     </div>
   );
 };

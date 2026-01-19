@@ -14,7 +14,10 @@ const PrerequisiteManager = () => {
   });
 
   useEffect(() => { loadCourses(); }, []);
-  useEffect(() => { if (selectedCourse) loadPrerequisites(); }, [selectedCourse]);
+  useEffect(() => {
+    if (selectedCourse) loadPrerequisites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCourse]);
 
   const loadCourses = async () => {
     try {

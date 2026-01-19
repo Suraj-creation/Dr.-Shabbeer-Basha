@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { courseAPI, lectureAPI, assignmentAPI, tutorialAPI, examAPI, resourceAPI, prerequisiteAPI } from '../../services/api';
+import { courseAPI, lectureAPI, assignmentAPI, tutorialAPI, examAPI, resourceAPI } from '../../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">�</div>
+          <div className="stat-icon">📖</div>
           <div className="stat-content">
             <h3>{stats.tutorials}</h3>
             <p>Tutorials</p>

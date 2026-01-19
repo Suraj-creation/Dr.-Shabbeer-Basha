@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { courseAPI, prerequisiteAPI } from '../../services/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import { FaClock, FaExternalLinkAlt } from 'react-icons/fa';
 import './PublicPages.css';
 
 function PrerequisitesPage() {
@@ -38,66 +40,75 @@ function PrerequisitesPage() {
       'Intermediate': 'badge-warning',
       'Advanced': 'badge-danger'
     };
-    return colors[level] || 'badge-secondary';
+    return colors[level] || 'badge-info';
   };
 
   return (
     <div className="public-page">
-      <header className="site-header">
-        <h1>📋 Prerequisites</h1>
-        <nav className="main-nav">
-          <Link to="/">Home</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/assignments">Assignments</Link>
-          <Link to="/tutorials">Tutorials</Link>
-          <Link to="/exams">Exams</Link>
-          <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/resources">Resources</Link>
-          <Link to="/admin/login" className="admin-link">Admin</Link>
-        </nav>
-      </header>
+      <Header userRole="student" />
+      
       <main className="main-container">
-        {loading ? (<p>Loading...</p>) : (
+        <div className="page-title-section">
+          <h1>📋 Prerequisites</h1>
+          <p>Required knowledge and recommended preparation before taking this course</p>
+        </div>
+
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <span className="loading-text">Loading prerequisites...</span>
+          </div>
+        ) : (
           <>
-            <div className="course-selector" style={{marginBottom: '20px'}}>
-              <label style={{marginRight: '10px'}}>Select Course: </label>
-              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} style={{padding: '8px', fontSize: '16px'}}>
-                {courses.map(course => (<option key={course._id} value={course._id}>{course.courseCode} - {course.courseTitle}</option>))}
+            <div className="course-selector-container">
+              <label>Select Course:</label>
+              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+                {courses.map(course => (
+                  <option key={course._id} value={course._id}>
+                    {course.courseCode} - {course.courseTitle}
+                  </option>
+                ))}
               </select>
             </div>
+
             <section className="prerequisites-section">
-              {prerequisites.length === 0 ? (<p className="empty-message">No prerequisites defined for this course.</p>) : (
-                <div className="courses-grid">
+              {prerequisites.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">📚</div>
+                  <h3>No Prerequisites Defined</h3>
+                  <p>Prerequisites will appear here when available.</p>
+                </div>
+              ) : (
+                <div className="course-grid">
                   {prerequisites.map(prereq => (
                     <div key={prereq._id} className="course-card">
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <div className="content-card-header">
                         <h3>{prereq.title}</h3>
                         {prereq.level && <span className={`badge ${getLevelBadge(prereq.level)}`}>{prereq.level}</span>}
                       </div>
                       
                       {prereq.courseCode && (
-                        <p style={{fontSize: '14px', color: '#666', marginBottom: '10px'}}>
-                          <strong>Course Code:</strong> {prereq.courseCode}
+                        <p style={{fontSize: '0.9rem', color: '#3498db', marginBottom: '12px', fontWeight: 600}}>
+                          {prereq.courseCode}
                         </p>
                       )}
                       
-                      {prereq.description && (
-                        <p style={{marginTop: '10px'}}>{prereq.description}</p>
-                      )}
+                      {prereq.description && <p>{prereq.description}</p>}
                       
                       {prereq.estimatedDuration && (
-                        <p style={{marginTop: '10px'}}>
-                          <strong>⏱️ Estimated Duration:</strong> {prereq.estimatedDuration}
+                        <p style={{marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px', color: '#7f8c8d'}}>
+                          <FaClock /> Estimated: {prereq.estimatedDuration}
                         </p>
                       )}
                       
                       {prereq.resources && prereq.resources.length > 0 && (
-                        <div style={{marginTop: '15px'}}>
-                          <h4>📚 Learning Resources:</h4>
+                        <div className="links-section">
+                          <h4>📚 Learning Resources</h4>
                           <ul>
                             {prereq.resources.map((resource, i) => (
                               <li key={i}>
                                 <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                                  {resource.title} <FaExternalLinkAlt size={10} />
                                   {resource.title}
                                 </a>
                                 {resource.type && (
@@ -118,7 +129,7 @@ function PrerequisitesPage() {
           </>
         )}
       </main>
-      <footer className="site-footer"><p>&copy; 2026 Educational Platform. All rights reserved.</p></footer>
+      <Footer />
     </div>
   );
 }

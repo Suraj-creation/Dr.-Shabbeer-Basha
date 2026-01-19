@@ -1,6 +1,8 @@
-﻿import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { courseAPI, assignmentAPI } from '../../services/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import { FaCalendarAlt, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
 import './PublicPages.css';
 
 const AssignmentsPage = () => {
@@ -14,25 +16,25 @@ const AssignmentsPage = () => {
 
   const loadCourses = async () => {
     try {
-      const response = await courseAPI.getAll();
-      const coursesData = response.data.data || [];
-      setCourses(coursesData);
-      if (coursesData.length > 0) setSelectedCourse(coursesData[0]._id);
+      const r = await courseAPI.getAll();
+      const d = r.data.data || [];
+      setCourses(d);
+      if (d.length > 0) setSelectedCourse(d[0]._id);
       setLoading(false);
-    } catch (error) { console.error('Error:', error); setLoading(false); }
+    } catch (e) { console.error(e); setLoading(false); }
   };
 
   const loadAssignments = async () => {
     try {
-      const response = await assignmentAPI.getByCourse(selectedCourse);
-      setAssignments(response.data.data || []);
-    } catch (error) { console.error('Error:', error); }
+      const r = await assignmentAPI.getByCourse(selectedCourse);
+      setAssignments(r.data.data || []);
+    } catch (e) { console.error(e); }
   };
 
   const getStatusClass = (status) => {
     switch (status) {
       case 'Active': return 'badge-success';
-      case 'Graded': return 'badge-success';
+      case 'Graded': return 'badge-info';
       case 'Past Due': return 'badge-danger';
       default: return 'badge-warning';
     }
@@ -40,58 +42,51 @@ const AssignmentsPage = () => {
 
   return (
     <div className="public-page">
-      <header className="site-header">
-        <h1>Assignments</h1>
-        <nav className="main-nav">
-          <Link to="/">Home</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/assignments">Assignments</Link>
-          <Link to="/tutorials">Tutorials</Link>
-          <Link to="/exams">Exams</Link>
-          <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/resources">Resources</Link>
-          <Link to="/admin/login" className="admin-link">Admin</Link>
-        </nav>
-      </header>
+      <Header />
       <main className="main-container">
-        {loading ? (<p>Loading...</p>) : (
+        <div className="page-title-section">
+          <h1>Assignments</h1>
+          <p>View and download course assignments with due dates and requirements</p>
+        </div>
+        {loading ? (
+          <div className="loading-container"><div className="loading-spinner"></div><span className="loading-text">Loading...</span></div>
+        ) : (
           <>
-            <div className="course-selector" style={{marginBottom: '20px'}}>
-              <label style={{marginRight: '10px'}}>Select Course: </label>
-              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} style={{padding: '8px', fontSize: '16px'}}>
-                {courses.map(course => (<option key={course._id} value={course._id}>{course.courseCode} - {course.courseTitle}</option>))}
+            <div className="course-selector-container">
+              <label>Select Course:</label>
+              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+                {courses.map(c => <option key={c._id} value={c._id}>{c.courseCode} - {c.courseTitle}</option>)}
               </select>
             </div>
             <section className="assignments-section">
-              <h2>Course Assignments</h2>
-              {assignments.length === 0 ? (<p className="empty-message">No assignments available yet.</p>) : (
+              {assignments.length === 0 ? (
+                <div className="empty-state"><div className="empty-state-icon"></div><h3>No Assignments Available</h3><p>Assignments will appear here when published.</p></div>
+              ) : (
                 <div className="assignments-list">
-                  {assignments.map(assignment => (
-                    <div key={assignment._id} className="course-card" style={{marginBottom: '20px'}}>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <h3>Assignment {assignment.assignmentNumber}: {assignment.title}</h3>
-                        <span className={`badge ${getStatusClass(assignment.status)}`}>{assignment.status}</span>
+                  {assignments.map(a => (
+                    <div key={a._id} className="content-card">
+                      <div className="content-card-header">
+                        <h3>Assignment {a.assignmentNumber}: {a.title}</h3>
+                        <span className={`badge ${getStatusClass(a.status)}`}>{a.status}</span>
                       </div>
-                      <p>{assignment.description}</p>
-                      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginTop: '10px'}}>
-                        <div><strong> Release:</strong> {new Date(assignment.releaseDate).toLocaleDateString()}</div>
-                        <div><strong> Due:</strong> {new Date(assignment.dueDate).toLocaleDateString()}</div>
-                        <div><strong> Points:</strong> {assignment.totalPoints}</div>
-                        {assignment.submissionFormat && (<div><strong> Format:</strong> {assignment.submissionFormat}</div>)}
+                      <p>{a.description}</p>
+                      <div className="info-grid">
+                        <div className="info-item"><label><FaCalendarAlt /> Release Date</label><span>{new Date(a.releaseDate).toLocaleDateString()}</span></div>
+                        <div className="info-item"><label><FaCalendarAlt /> Due Date</label><span style={{color:'#e74c3c',fontWeight:600}}>{new Date(a.dueDate).toLocaleDateString()}</span></div>
+                        <div className="info-item"><label>Total Points</label><span>{a.totalPoints}</span></div>
+                        {a.submissionFormat && <div className="info-item"><label>Format</label><span>{a.submissionFormat}</span></div>}
                       </div>
-                      {assignment.learningObjectives && assignment.learningObjectives.length > 0 && (
-                        <div><strong>Learning Objectives:</strong><ul>{assignment.learningObjectives.map((obj, i) => (<li key={i}>{obj}</li>))}</ul></div>
+                      {a.learningObjectives && a.learningObjectives.length > 0 && (
+                        <div className="links-section"><h4>Learning Objectives</h4><ul className="content-list">{a.learningObjectives.map((obj, i) => <li key={i}>{obj}</li>)}</ul></div>
                       )}
-                      {assignment.requirements && assignment.requirements.length > 0 && (
-                        <div><strong>Requirements:</strong><ul>{assignment.requirements.map((req, i) => (<li key={i}>{req}</li>))}</ul></div>
+                      {a.requirements && a.requirements.length > 0 && (
+                        <div className="links-section"><h4>Requirements</h4><ul className="content-list">{a.requirements.map((r, i) => <li key={i}>{r}</li>)}</ul></div>
                       )}
-                      {assignment.rubric && assignment.rubric.length > 0 && (
-                        <div style={{marginTop: '15px'}}><strong>Grading Rubric:</strong>
-                          <table style={{width: '100%', marginTop: '10px', borderCollapse: 'collapse'}}>
-                            <thead><tr><th style={{border: '1px solid #ddd', padding: '8px'}}>Criteria</th><th style={{border: '1px solid #ddd', padding: '8px'}}>Points</th><th style={{border: '1px solid #ddd', padding: '8px'}}>Description</th></tr></thead>
-                            <tbody>{assignment.rubric.map((item, i) => (<tr key={i}><td style={{border: '1px solid #ddd', padding: '8px'}}>{item.criteria}</td><td style={{border: '1px solid #ddd', padding: '8px'}}>{item.points}</td><td style={{border: '1px solid #ddd', padding: '8px'}}>{item.description}</td></tr>))}</tbody>
-                          </table>
-                        </div>
+                      {a.templateFiles && a.templateFiles.length > 0 && (
+                        <div className="links-section"><h4><FaDownload /> Template Files</h4><ul>{a.templateFiles.map((f, i) => <li key={i}><a href={f.url} target="_blank" rel="noopener noreferrer">{f.fileName} <FaExternalLinkAlt size={10} /></a></li>)}</ul></div>
+                      )}
+                      {a.rubric && a.rubric.length > 0 && (
+                        <div className="links-section"><h4>Grading Rubric</h4><table className="styled-table"><thead><tr><th>Criteria</th><th>Points</th><th>Description</th></tr></thead><tbody>{a.rubric.map((item, i) => <tr key={i}><td>{item.criteria}</td><td>{item.points}</td><td>{item.description}</td></tr>)}</tbody></table></div>
                       )}
                     </div>
                   ))}
@@ -101,7 +96,7 @@ const AssignmentsPage = () => {
           </>
         )}
       </main>
-      <footer className="site-footer"><p>&copy; 2026 Educational Platform. All rights reserved.</p></footer>
+      <Footer />
     </div>
   );
 };

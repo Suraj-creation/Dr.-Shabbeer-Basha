@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { courseAPI, tutorialAPI } from '../../services/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import { FaPlay, FaLightbulb, FaExternalLinkAlt } from 'react-icons/fa';
 import './PublicPages.css';
 
 function TutorialsPage() {
@@ -34,62 +36,76 @@ function TutorialsPage() {
 
   return (
     <div className="public-page">
-      <header className="site-header">
-        <h1>📚 Tutorials</h1>
-        <nav className="main-nav">
-          <Link to="/">Home</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/assignments">Assignments</Link>
-          <Link to="/tutorials">Tutorials</Link>
-          <Link to="/exams">Exams</Link>
-          <Link to="/prerequisites">Prerequisites</Link>
-          <Link to="/resources">Resources</Link>
-          <Link to="/admin/login" className="admin-link">Admin</Link>
-        </nav>
-      </header>
+      <Header userRole="student" />
+      
       <main className="main-container">
-        {loading ? (<p>Loading...</p>) : (
+        <div className="page-title-section">
+          <h1>📚 Tutorials</h1>
+          <p>Supplementary tutorials and practice materials</p>
+        </div>
+
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <span className="loading-text">Loading tutorials...</span>
+          </div>
+        ) : (
           <>
-            <div className="course-selector" style={{marginBottom: '20px'}}>
-              <label style={{marginRight: '10px'}}>Select Course: </label>
-              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} style={{padding: '8px', fontSize: '16px'}}>
-                {courses.map(course => (<option key={course._id} value={course._id}>{course.courseCode} - {course.courseTitle}</option>))}
+            <div className="course-selector-container">
+              <label>Select Course:</label>
+              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+                {courses.map(course => (
+                  <option key={course._id} value={course._id}>
+                    {course.courseCode} - {course.courseTitle}
+                  </option>
+                ))}
               </select>
             </div>
+
             <section className="tutorials-section">
-              {tutorials.length === 0 ? (<p className="empty-message">No tutorials available for this course.</p>) : (
-                <div className="courses-grid">
+              {tutorials.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">📖</div>
+                  <h3>No Tutorials Available</h3>
+                  <p>Tutorials will appear here when published.</p>
+                </div>
+              ) : (
+                <div className="tutorials-list">
                   {tutorials.map(tutorial => (
-                    <div key={tutorial._id} className="course-card">
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div key={tutorial._id} className="content-card">
+                      <div className="content-card-header">
                         <h3>Tutorial {tutorial.tutorialNumber}: {tutorial.title}</h3>
                         {tutorial.isPublished && <span className="badge badge-success">Published</span>}
                       </div>
-                      {tutorial.date && <p style={{fontSize: '14px', color: '#666'}}><strong>Date:</strong> {new Date(tutorial.date).toLocaleDateString()}</p>}
-                      {tutorial.instructor && <p><strong>Instructor:</strong> {tutorial.instructor}</p>}
+                      
+                      {tutorial.description && <p>{tutorial.description}</p>}
                       
                       {tutorial.topicsCovered && tutorial.topicsCovered.length > 0 && (
-                        <div style={{marginTop: '15px'}}>
-                          <h4>Topics Covered:</h4>
-                          <ul>{tutorial.topicsCovered.map((topic, i) => <li key={i}>{topic}</li>)}</ul>
+                        <div className="links-section">
+                          <h4>📌 Topics Covered</h4>
+                          <ul className="content-list">
+                            {tutorial.topicsCovered.map((topic, i) => <li key={i}>{topic}</li>)}
+                          </ul>
                         </div>
                       )}
                       
                       {tutorial.whyItMatters && (
-                        <div style={{marginTop: '15px', padding: '10px', background: '#f0f7ff', borderRadius: '4px'}}>
-                          <h4>💡 Why It Matters:</h4>
-                          <p>{tutorial.whyItMatters}</p>
+                        <div style={{marginTop: '16px', padding: '16px', background: 'rgba(52, 152, 219, 0.08)', borderRadius: '12px', borderLeft: '4px solid #3498db'}}>
+                          <h4 style={{margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                            <FaLightbulb color="#f39c12" /> Why It Matters
+                          </h4>
+                          <p style={{margin: 0}}>{tutorial.whyItMatters}</p>
                         </div>
                       )}
                       
                       {tutorial.videos && tutorial.videos.length > 0 && (
-                        <div style={{marginTop: '15px'}}>
-                          <h4>🎥 Videos ({tutorial.videos.length}):</h4>
+                        <div className="links-section">
+                          <h4><FaPlay /> Videos ({tutorial.videos.length})</h4>
                           <ul>
                             {tutorial.videos.map((video, i) => (
                               <li key={i}>
                                 <a href={video.url} target="_blank" rel="noopener noreferrer">
-                                  {video.title} {video.duration && `(${video.duration})`} - {video.platform}
+                                  {video.title} {video.duration && `(${video.duration})`} <FaExternalLinkAlt size={10} />
                                 </a>
                               </li>
                             ))}
@@ -132,7 +148,7 @@ function TutorialsPage() {
           </>
         )}
       </main>
-      <footer className="site-footer"><p>&copy; 2026 Educational Platform. All rights reserved.</p></footer>
+      <Footer />
     </div>
   );
 }
