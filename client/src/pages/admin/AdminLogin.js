@@ -45,7 +45,7 @@ const AdminLogin = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@dlcourse.com"
+              placeholder="Enter your email"
               required
             />
           </div>
@@ -67,7 +67,6 @@ const AdminLogin = () => {
         </form>
 
         <div className="login-footer">
-          <p>Default: admin@dlcourse.com / admin123</p>
           <Link to="/" className="back-home-link">← Back to Home Page</Link>
         </div>
       </div>
